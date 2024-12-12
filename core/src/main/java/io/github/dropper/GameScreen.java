@@ -6,17 +6,25 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 
 /** Second screen of the application. Displayed after the user interacts on MenuScreen. */
 public class GameScreen implements Screen {
 
-    Dropper game;
+    final Dropper game;
+    Viewport uiViewport;
+    Stage stage;
+    Skin skin;
+    Label scoreMessage;
     Sound ding;
     Texture forest;
     Texture basket;
@@ -26,13 +34,20 @@ public class GameScreen implements Screen {
     Array<Sprite> appleSpriteArray;
     Rectangle basketRectangle;
     Rectangle appleRectangle;
-    GlyphLayout layout;
     float delayTime;
     int applesCollected;
     float delta;
 
     GameScreen(Dropper game) {
         this.game = game;
+
+        //
+        uiViewport = new ScreenViewport();
+        stage = new Stage(uiViewport);
+        skin = new Skin(Gdx.files.internal("earthboundui/terra-mother-ui.json"));
+        scoreMessage = new Label("Score: " + applesCollected, skin);
+        scoreMessage.setPosition(0, uiViewport.getWorldHeight() - scoreMessage.getHeight());
+        stage.addActor(scoreMessage);
 
         delta = Gdx.graphics.getDeltaTime();
 
@@ -51,10 +66,6 @@ public class GameScreen implements Screen {
         appleRectangle = new Rectangle();
 
         applesCollected = 0;
-
-        layout = new GlyphLayout();
-        layout.setText(game.font, "Score: ");
-        game.font.getData().setScale(game.viewport.getWorldWidth() / Gdx.graphics.getWidth(), game.viewport.getWorldHeight() / Gdx.graphics.getHeight()); //increases scale of text on GameScreen
 
         resume();
     }
@@ -81,7 +92,7 @@ public class GameScreen implements Screen {
             basketSprite.translateX(speed * delta);
         }
 
-        if(Gdx.input.isKeyPressed(Input.Keys.ESCAPE) || Gdx.input.isKeyPressed(Input.Keys.P)) {
+        if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE) || Gdx.input.isKeyJustPressed(Input.Keys.P)) {
             pause();
         }
     }
@@ -122,10 +133,10 @@ public class GameScreen implements Screen {
     public void draw() {
         ScreenUtils.clear(Color.CLEAR);
         game.batch.setProjectionMatrix(game.viewport.getCamera().combined);
+        game.viewport.apply();
 
         float worldWidth = game.viewport.getWorldWidth();
         float worldHeight = game.viewport.getWorldHeight();
-        float textHeight = layout.height;
 
         game.batch.begin();
 
@@ -134,9 +145,14 @@ public class GameScreen implements Screen {
         for(Sprite appleSprite : appleSpriteArray) {
             appleSprite.draw(game.batch);
         }
-        game.font.draw(game.batch, "Score: " + applesCollected, 0, worldHeight - textHeight);
 
         game.batch.end();
+
+        //
+        uiViewport.apply();
+        stage.act();
+        scoreMessage.setText("Score: " + applesCollected);
+        stage.draw();
     }
 
     public void createApple() {
@@ -154,6 +170,7 @@ public class GameScreen implements Screen {
     public void resize(int width, int height) {
         // Resize your screen here. The parameters represent the new window size.
         game.viewport.update(width, height, true);
+        uiViewport.update(width, height, true);
     }
 
     @Override

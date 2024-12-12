@@ -8,20 +8,16 @@ public class ScreenData {
 
     Dropper game;
     private Texture basket;
-    private Texture apple;
     private Sprite basketSprite;
-    private Sprite appleSprite;
     private Array<Sprite> appleSpriteArray;
     private int appleCount;
 
     ScreenData(Dropper game) {
         //
         basket = new Texture("basket.png");
-        apple = new Texture("apple.png");
         basketSprite = new Sprite(basket);
         basketSprite.setSize(1.5f, 1.5f);
         basketSprite.setX((game.viewport.getWorldWidth() / 2) - (basketSprite.getWidth() / 2));
-        appleSprite = new Sprite(apple);
         appleSpriteArray = new Array<Sprite>();
         appleCount = 0;
     }

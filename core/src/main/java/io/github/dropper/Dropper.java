@@ -3,12 +3,7 @@ package io.github.dropper;
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
@@ -19,7 +14,6 @@ public class Dropper extends Game {
     Viewport viewport;
     ScreenData data;
     SpriteBatch batch; //declares SpriteBatch for draw calls
-    BitmapFont font; //declares BitmapFont for text display
     Music music;
 
     public void create() {
@@ -39,8 +33,6 @@ public class Dropper extends Game {
 
         //
         batch = new SpriteBatch(); //initializes SpriteBatch instance for draw calls
-        font = new BitmapFont(); //initializes BitmapFont instance for text display
-        font.setUseIntegerPositions(false);
 
         //
         music = Gdx.audio.newMusic(Gdx.files.internal("scaryMusic.mp3"));
@@ -62,6 +54,5 @@ public class Dropper extends Game {
     public void dispose() {
         //dispose of batch & font instances
         batch.dispose();
-        font.dispose();
     }
 }

@@ -3,6 +3,7 @@ package io.github.dropper;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -22,6 +23,8 @@ public class PauseScreen implements Screen {
     private TextButton unPauseButton;
     private TextButton settingsButton;
     private TextButton exitButton;
+    private Sound click;
+    int buttonFlag;
 
     PauseScreen(Dropper game) {
         //
@@ -38,11 +41,21 @@ public class PauseScreen implements Screen {
         unPauseButton = new TextButton("Resume", skin);
         settingsButton = new TextButton("Settings", skin);
         exitButton = new TextButton("Exit Game", skin);
+
+        //
+        unPauseButton.getStyle().overFontColor = Color.YELLOW;
+
+        //
         root.add(unPauseButton).pad(10f);
         root.row();
         root.add(settingsButton).pad(10f);
         root.row();
         root.add(exitButton).pad(10f);
+        //stage.setDebugAll(true);
+
+        //
+        click = Gdx.audio.newSound(Gdx.files.internal("click.mp3"));
+        buttonFlag = 0;
     }
 
     @Override
@@ -59,12 +72,29 @@ public class PauseScreen implements Screen {
 
     public void input() {
         //
-        if(Gdx.input.isKeyPressed(Input.Keys.R) || Gdx.input.isKeyPressed(Input.Keys.P)) {
+        if(unPauseButton.isOver() || settingsButton.isOver() || exitButton.isOver()) {
+            if(buttonFlag < 1) {
+                click.play(0.01f);
+                buttonFlag++;
+            }
+        } else {
+            buttonFlag = 0;
+        }
+
+        //
+        if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE) || Gdx.input.isKeyJustPressed(Input.Keys.P) || unPauseButton.isPressed()) {
             game.setScreen(new GameScreen(game));
         }
 
         //
+        if(settingsButton.isPressed()) {
+            //game.setScreen(new SettingsScreen(game));
+        }
 
+        //
+        if(exitButton.isPressed()) {
+            System.exit(0);
+        }
     }
 
     public void logic() {
@@ -72,7 +102,7 @@ public class PauseScreen implements Screen {
     }
 
     public void draw() {
-        ScreenUtils.clear(Color.CLEAR);
+        ScreenUtils.clear(Color.BLACK);
 
         stage.act();
         stage.draw();

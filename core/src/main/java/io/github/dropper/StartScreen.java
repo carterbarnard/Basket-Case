@@ -1,32 +1,46 @@
 package io.github.dropper;
 
 import com.badlogic.gdx.*;
-import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 
 /** First screen of the application. Displayed after the application is created. */
 public class StartScreen implements Screen {
 
     final Dropper game;
+    Viewport uiViewport;
+    Stage stage;
+    Skin skin;
+    Label startMessage;
     Texture forest;
     Texture basket;
     Texture apple;
     Sprite basketSprite;
     Sprite appleSprite;
     Array<Sprite> appleSpriteArray;
-    String text;
-    GlyphLayout layout;
     float delayTime;
 
    StartScreen(Dropper game) {
        this.game = game;
 
+       //
+       uiViewport = new ScreenViewport();
+       stage = new Stage(uiViewport);
+       skin = new Skin(Gdx.files.internal("earthboundui/terra-mother-ui.json"));
+       startMessage = new Label("Press 'Space' to begin collecting apples", skin);
+       startMessage.setPosition((uiViewport.getWorldWidth() / 2) - (startMessage.getWidth() / 2), uiViewport.getWorldHeight() / 2);
+       stage.addActor(startMessage);
+
+       //
        forest = new Texture("forest.png"); //creates forest background texture
        basket = new Texture("basket.png");
        apple = new Texture("apple.png");
@@ -37,11 +51,6 @@ public class StartScreen implements Screen {
 
        appleSpriteArray = new Array<Sprite>();
        createApple();
-
-       text = "Press 'Space' to begin collecting apples";
-       game.font.getData().setScale(game.viewport.getWorldWidth() / Gdx.graphics.getWidth(), game.viewport.getWorldHeight() / Gdx.graphics.getHeight()); //increases scale of text on MenuScreen
-       layout = new GlyphLayout();
-       layout.setText(game.font, text);
    }
 
     @Override
@@ -85,10 +94,10 @@ public class StartScreen implements Screen {
     public void draw() {
        ScreenUtils.clear(Color.CLEAR);
        game.batch.setProjectionMatrix(game.viewport.getCamera().combined);
+       game.viewport.apply();
 
        float worldWidth = game.viewport.getWorldWidth();
        float worldHeight = game.viewport.getWorldHeight();
-       float textWidth = layout.width;
 
        game.batch.begin();
 
@@ -97,9 +106,13 @@ public class StartScreen implements Screen {
        for(Sprite appleSprite : appleSpriteArray) {
            appleSprite.draw(game.batch);
        }
-       game.font.draw(game.batch, text, (worldWidth / 2f) - (textWidth / 2), worldHeight /2f);
 
        game.batch.end();
+
+       //
+       uiViewport.apply();
+       stage.act();
+       stage.draw();
     }
 
     public void createApple() {
@@ -117,6 +130,7 @@ public class StartScreen implements Screen {
     public void resize(int width, int height) {
         // Resize your screen here. The parameters represent the new window size.
         game.viewport.update(width, height, true);
+        uiViewport.update(width, height, true);
     }
 
     @Override
